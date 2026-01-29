@@ -1,35 +1,61 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import products, { uniqueCategories } from './data'
+import CategoryButton from './components/CategoryButton'
+import ProductCard from './components/ProductCard'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [selectedCategory, setSelectedCategory] = useState('All')
+
+  const filteredProducts =
+    selectedCategory === 'All'
+      ? products
+      : products.filter(p => p.category === selectedCategory)
+
+  // ✅ PART 4 — Dynamic Totals
+  const totalUnits = filteredProducts.reduce((sum, p) => sum + p.units, 0)
+
+  const totalPrice = filteredProducts.reduce(
+    (sum, p) => sum + p.units * p.price,
+    0
+  )
 
   return (
-    <>
+    <div style={{ padding: '20px' }}>
+      <h1>🛍 Product List</h1>
+
+      {/* Category Buttons */}
       <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+        <CategoryButton
+          name="All"
+          isActive={selectedCategory === 'All'}
+          onClick={setSelectedCategory}
+        />
+        {uniqueCategories.map(category => (
+          <CategoryButton
+            key={category}
+            name={category}
+            isActive={selectedCategory === category}
+            onClick={setSelectedCategory}
+          />
+        ))}
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
+
+      {/* Product Count */}
+      <h2>{filteredProducts.length} Products Shown</h2>
+
+      {/* ✅ Dynamic Totals Display */}
+      <p><strong>Total Units:</strong> {totalUnits}</p>
+      <p><strong>Total Inventory Value:</strong> ${totalPrice.toFixed(2)}</p>
+
+      {/* Product Grid */}
+      <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+        {filteredProducts.map(product => (
+          <ProductCard key={product.id} product={product} />
+        ))}
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    </div>
   )
 }
 
 export default App
+  
